@@ -1,0 +1,166 @@
+\name{generate.PrecipitationOccurenceModel}
+\alias{generate}
+\alias{generate.CCGammaObjectListPerEachMonth}
+\alias{generate.PrecipitationAmountModel}
+\alias{generate.PrecipitationOccurenceModel}
+\alias{generate.PrecipitationOccurenceMultiSiteModel}
+\title{Stochastic Generation of a  \code{PrecipitationOccurenceModel} or \code{PrecipitationOccurenceMultiSiteModel} model object}
+\usage{
+\method{generate}{PrecipitationOccurenceModel}(x, newdata = NULL,
+  previous = NULL, n = 30, random = runif(n, min = 0, max = 1),
+  exogen = NULL, monthly.factor = NULL, ...)
+
+\method{generate}{CCGammaObjectListPerEachMonth}(x, ...)
+
+\method{generate}{PrecipitationOccurenceMultiSiteModel}(x, exogen, n = 10,
+  origin = "1961-1-1", end = "1990-1-1", previous = NULL,
+  monthly.factor = NULL, ...)
+
+\method{generate}{PrecipitationAmountModel}(x, ...)
+}
+\arguments{
+  \item{x}{model returned by
+  \code{\link{PrecipitationOccurenceModel}} or
+  \code{\link{PrecipitationOccurenceMultiSiteModel}}}
+
+  \item{newdata}{predictor or exogenous variables. See
+  \code{\link{predict.PrecipitationOccurenceModel}}}
+
+  \item{exogen}{predictor or exogenous variables}
+
+  \item{monthly.factor}{vector of factors indicating the
+  month of the days}
+
+  \item{random}{vector of random or calculated numbers
+  ranging between 0 and 1}
+
+  \item{origin,end}{character strings (yyyy-dd-mm)
+  indicating the start and/or end date of the daily weather
+  generation.}
+
+  \item{n}{number of generations. See
+  \code{\link{generate}}. Here it is ignored and the number
+  of generations is given by \code{origin},\code{end} or
+  \code{monthly.factor}.}
+
+  \item{previous}{logical vector containing previously
+  occurred states}
+
+  \item{...}{further arguments}
+}
+\description{
+It is an implentation of \code{\link{generate}} method
+}
+\examples{
+library(RGENERATEPREC)
+
+
+## A function example can be found in the following script file:
+scriptfile <- system.file("example.generate.R",package="RGENERATEPREC")
+## The corrent file path is given by 'scriptfile' variable:
+print(scriptfile)
+## To run the example file, launch the file with 'source' command (uncomment the following line)
+#source(scriptfile)
+
+## ALTERNATIVELY you can run the following lines:
+
+
+
+data(trentino)
+
+year_min <- 1961
+year_max <- 1990
+
+origin <- paste(year_min,1,1,sep="-")
+end <- paste(year_max,12,31,sep="-")
+
+period <- PRECIPITATION$year>=year_min & PRECIPITATION$year<=year_max
+period_temp <- TEMPERATURE_MAX$year>=year_min & TEMPERATURE_MAX$year<=year_max
+
+prec_mes <- PRECIPITATION[period,]
+Tx_mes <- TEMPERATURE_MAX[period_temp,]
+Tn_mes <- TEMPERATURE_MIN[period_temp,]
+accepted <- array(TRUE,length(names(prec_mes)))
+names(accepted) <- names(prec_mes)
+for (it in names(prec_mes)) {
+	acc <- TRUE
+	acc <- (length(which(!is.na(Tx_mes[,it])))==length(Tx_mes[,it]))
+	acc <- (length(which(!is.na(Tn_mes[,it])))==length(Tn_mes[,it])) & acc
+	accepted[it]  <- (length(which(!is.na(prec_mes[,it])))==length(prec_mes[,it])) & acc
+
+}
+
+valmin <- 1.0
+prec_mes <- prec_mes[,accepted]
+
+
+
+Tx_mes <- Tx_mes[,accepted]
+Tn_mes <- Tn_mes[,accepted]
+prec_occurence_mes <- prec_mes>=valmin
+
+station <- names(prec_mes)[!(names(prec_mes) \%in\% c("day","month","year"))]
+it <- station[2]
+vect <- Tx_mes[,it]-Tn_mes[,it]
+months <- factor(prec_mes$month)
+
+#
+### Not Run!!!
+###  Please uncomment the following lines to run them
+
+
+#model <-
+#PrecipitationOccurenceModel(x=prec_mes[,it],exogen=vect,
+#monthly.factor=months,valmin=valmin)
+#
+#obs <- prec_mes[,it]>=valmin
+#
+#gen <- generate(model,exogen=vect,monthly.factor=months,n=length(months))
+
+
+### MultiSite Generation
+
+
+station <- station[1:2]
+exogen <- Tx_mes[,station]-Tn_mes[,station]
+
+months <- factor(prec_mes$month)
+
+#
+### Not Run!!!
+###  Please uncomment the following lines to run them
+
+#model_multisite <-
+#PrecipitationOccurenceMultiSiteModel(x=prec_mes[,station],
+#exogen=exogen,origin=origin,multisite_type="wilks")
+#
+#
+## LOGIT-type Model
+#model_multisite_logit <-
+#PrecipitationOccurenceMultiSiteModel(x=prec_mes,exogen=exogen,
+#origin=origin,multisite_type="logit",station=station)
+#
+#
+#obs_multisite <- prec_mes[,station]>=valmin
+#
+#gen_multisite <- generate(model_multisite,exogen=exogen,origin=origin,end=end)
+#
+#gen_multisite_logit <- generate(model_multisite_logit,exogen=exogen,origin=origin,end=end)
+}
+\references{
+D.S. Wilks (1998), Multisite Generalization of a Daily
+Stochastic Precipitation Generation Model, Journal of
+Hydrology, Volume 210, Issues 1-4, September 1998, Pages
+178-191,
+\url{http://www.sciencedirect.com/science/article/pii/S0022169498001863}
+
+Muamaraldin Mhanna and Willy Bauwens (2011) A Stochastic
+Space-Time Model for the Generation of Daily Rainfall in
+the Gaza Strip, International Journal of Climatology,
+Volume 32, Issue 7, pages 1098-1112,
+\url{http://dx.doi.org/10.1002/joc.2305}
+}
+\seealso{
+\code{\link{generate}},\code{\link{predict.glm}},\code{\link{PrecipitationOccurenceModel}},\code{\link{PrecipitationOccurenceMultiSiteModel}}
+}
+

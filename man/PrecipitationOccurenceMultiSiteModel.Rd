@@ -1,0 +1,115 @@
+\name{PrecipitationOccurenceMultiSiteModel}
+\alias{PrecipitationOccurenceMultiSiteModel}
+\title{Precipitation Occurence Multi-Site Model}
+\usage{
+PrecipitationOccurenceMultiSiteModel(x, exogen = NULL, station = names(x),
+  origin = origin, valmin = 0.5, multisite_type = "wilks",
+  tolerance_wilks = 0.001, p = 2, ...)
+}
+\arguments{
+  \item{x}{data frame (each column is a site) of variable
+  utilized for the auto-regression of its occurrence, e.g.
+  daily precipitaton}
+
+  \item{exogen}{exogenous predictors}
+
+  \item{station}{character string vectors containing the
+  codes of the station used for model calibration}
+
+  \item{valmin}{minimum admitted value for daily
+  precipitation amount}
+
+  \item{multisite_type}{string indicating the utilized
+  approach for spatial multi-site dependence description.
+  Default is \code{"wilks"}.}
+
+  \item{tolerance_wilks}{see \code{tolerance} used by
+  \code{\link{omega_inv}} through \code{\link{CCGamma}}}
+
+  \item{origin}{character string (yyyy-dd-mm) indicating
+  the date of the first row of \code{"x"}.}
+
+  \item{p}{auto-regression order}
+
+  \item{...}{further arguments}
+}
+\value{
+The function returns a
+\code{PrecipitationOccurenceModel-class} S3 object
+containing the following elements:
+
+... \code{\link{PrecipitationOccurenceModel}} S3 class
+objects for each analyzed site. The name is the site (or
+station) code
+
+\code{ccgama} \code{CCGammaObjectListPerEachMonth} object,
+i.e. matices of Gaussian Inter-Site Correlation returned by
+\code{\link{CCGamma}};
+
+\code{type} string indicating the utilized approach for
+spatial multi-site dependence description, only
+\code{"wilks"} type is implemented;
+
+\code{station} character string vectors containing the
+codes of the station used in
+\code{PrecipitationMultiSiteOccurenceModel}.
+}
+\description{
+This functions creates a stochastic Occurence Multi-Site
+Model for the variable \code{x}
+(\code{PrecipitationOccurenceMultiSiteModel} S3 object)
+through a calibration from observed data.
+}
+\examples{
+library(RGENERATEPREC)
+
+data(trentino)
+
+year_min <- 1961
+year_max <- 1990
+origin <- paste(year_min,1,1,sep="-")
+
+period <- PRECIPITATION$year>=year_min & PRECIPITATION$year<=year_max
+period_temp <- TEMPERATURE_MAX$year>=year_min & TEMPERATURE_MAX$year<=year_max
+
+prec_mes <- PRECIPITATION[period,]
+Tx_mes <- TEMPERATURE_MAX[period_temp,]
+Tn_mes <- TEMPERATURE_MIN[period_temp,]
+accepted <- array(TRUE,length(names(prec_mes)))
+names(accepted) <- names(prec_mes)
+for (it in names(prec_mes)) {
+	acc <- TRUE
+	acc <- (length(which(!is.na(Tx_mes[,it])))==length(Tx_mes[,it]))
+	acc <- (length(which(!is.na(Tn_mes[,it])))==length(Tn_mes[,it])) & acc
+	accepted[it]  <- (length(which(!is.na(prec_mes[,it])))==length(prec_mes[,it])) & acc
+
+}
+
+valmin <- 1.0
+prec_mes <- prec_mes[,accepted]
+
+
+
+Tx_mes <- Tx_mes[,accepted]
+Tn_mes <- Tn_mes[,accepted]
+prec_occurence_mes <- prec_mes>=valmin
+
+station <- names(prec_mes)[!(names(prec_mes) \%in\% c("day","month","year"))]
+station <- station[1:2] # to save example elapsed time!!
+exogen <- Tx_mes-Tn_mes
+months <- factor(prec_mes$month)
+#' ### Not Run!!
+# The following lines are commented to save example elapsed time!!
+#model_multisite <- PrecipitationOccurenceMultiSiteModel(x=prec_mes,exogen=exogen,
+#origin=origin,multisite_type="wilks")
+
+### Not Run!!
+#  The following lines are commented to save example elapsed time!!
+#model_multisite_logit <- PrecipitationOccurenceMultiSiteModel(x=prec_mes,exogen=exogen,
+#origin=origin,multisite_type="logit")
+###
+}
+\seealso{
+\code{\link{PrecipitationOccurenceModel}},\code{\link{CCGamma}}
+}
+
