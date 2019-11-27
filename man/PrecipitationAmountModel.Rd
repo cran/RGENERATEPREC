@@ -2,7 +2,7 @@
 % Please edit documentation in R/PrecipitationAmountModel.R
 \name{PrecipitationAmountModel}
 \alias{PrecipitationAmountModel}
-\title{....}
+\title{Creates a Precipitation Amount Model}
 \usage{
 PrecipitationAmountModel(x, valmin = 1, station = names(x),
   sample = "monthly", origin = "1961-1-1", ...)
@@ -25,11 +25,11 @@ The function returns AN S3 OBJECT ...... the correlation matrix of precipitation
 In case \code{sample=="monthly"} the runction return a \code{MonlthyList} S3 object.
 }
 \description{
-....
+Creates a Precipitation Amount Model
 }
 \examples{
-library(RGENERATEPREC)
 
+\dontrun{
 set.seed(1245)
 
 data(trentino)
@@ -63,7 +63,7 @@ prec_mes <- prec_mes[,accepted]
 
 Tx_mes <- Tx_mes[,accepted]
 Tn_mes <- Tn_mes[,accepted]
-prec_occurence_mes <- prec_mes>=valmin
+prec_occurrence_mes <- prec_mes>=valmin
 
 station <- names(prec_mes)[!(names(prec_mes) \%in\% c("day","month","year"))]
 
@@ -84,10 +84,40 @@ qqplot(prec_mes$T0083,prec_gen$T0083)
 abline(0,1)
 
 
+## SINGLE STATION
 
+station <- "T0083"
+
+precamount_single <- PrecipitationAmountModel(prec_mes,station=station,origin=origin)
+
+val_single <- predict(precamount_single)
+
+prec_gen_single <- generate(precamount_single)  
+
+
+
+month <- adddate(as.data.frame(residuals(precamount_single[[station[1]]])),origin=origin)$month
+plot(factor(month),residuals(precamount_single[[station[1]]]))
+
+
+### Comparison (Q-Q plot) between multi and single sites. 
+
+qqplot(prec_mes$T0083,prec_gen$T0083,col=1)
+abline(0,1)
+points(sort(prec_mes$T0083),sort(prec_gen_single$T0083),pch=2,col=2)
+legend("bottomright",pch=c(1,2),col=c(1,2),legend=c("Multi Sites","Single Site"))
+
+
+
+
+
+
+
+abline(0,1)
+
+}
 
 }
 \seealso{
-\code{\link{predict.PrecipitationAmountModel}},\code{\link[RMAWGEN]{normalizeGaussian_severalstations}}
+\code{\link{predict.PrecipitationAmountModel}},\code{\link[RMAWGEN]{normalizeGaussian_severalstations}},\code{\link{generate}}
 }
-

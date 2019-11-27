@@ -1,5 +1,5 @@
 NULL
-#' ....
+#' Creates a Precipitation Amount Model
 #' 
 #' @param x observed precipitation amount time series (data frame)
 #' @param station string vector containing station identification codes
@@ -13,15 +13,15 @@ NULL
 #' @return The function returns AN S3 OBJECT ...... the correlation matrix of precipitation amount values (excluding the zeros). 
 #' In case \code{sample=="monthly"} the runction return a \code{MonlthyList} S3 object.
 #' 
-#' @seealso \code{\link{predict.PrecipitationAmountModel}},\code{\link[RMAWGEN]{normalizeGaussian_severalstations}}
+#' @seealso \code{\link{predict.PrecipitationAmountModel}},\code{\link[RMAWGEN]{normalizeGaussian_severalstations}},\code{\link{generate}}
 ############# ,\code{\link{generate}},\code{\link{random.precipitation.values}},\code{\link{cor}}
 #' 
 #' @export
 #' @importFrom RMAWGEN normalizeGaussian_severalstations
 #' 
 #'@examples 
-#' library(RGENERATEPREC)
 #' 
+#' \dontrun{
 #' set.seed(1245)
 #' 
 #' data(trentino)
@@ -57,7 +57,7 @@ NULL
 #' 
 #' Tx_mes <- Tx_mes[,accepted]
 #' Tn_mes <- Tn_mes[,accepted]
-#' prec_occurence_mes <- prec_mes>=valmin
+#' prec_occurrence_mes <- prec_mes>=valmin
 #' 
 #' station <- names(prec_mes)[!(names(prec_mes) %in% c("day","month","year"))]
 #' 
@@ -78,9 +78,39 @@ NULL
 #' abline(0,1)
 #' 
 #' 
+#' ## SINGLE STATION
+#' 
+#' station <- "T0083"
+#' 
+#' precamount_single <- PrecipitationAmountModel(prec_mes,station=station,origin=origin)
+#' 
+#' val_single <- predict(precamount_single)
+#' 
+#' prec_gen_single <- generate(precamount_single)  
 #' 
 #' 
-
+#' 
+#' month <- adddate(as.data.frame(residuals(precamount_single[[station[1]]])),origin=origin)$month
+#' plot(factor(month),residuals(precamount_single[[station[1]]]))
+#' 
+#' 
+#' ### Comparison (Q-Q plot) between multi and single sites. 
+#' 
+#' qqplot(prec_mes$T0083,prec_gen$T0083,col=1)
+#' abline(0,1)
+#' points(sort(prec_mes$T0083),sort(prec_gen_single$T0083),pch=2,col=2)
+#' legend("bottomright",pch=c(1,2),col=c(1,2),legend=c("Multi Sites","Single Site"))
+#' 
+#' 
+#' 
+#' 
+#' 
+#' 
+#' 
+#' abline(0,1)
+#' 
+#' }
+#' 
 
 
 
@@ -93,6 +123,18 @@ PrecipitationAmountModel <- function(x,valmin=1,station=names(x),sample="monthly
 
 		
 	}
+	
+	## EC 20190410
+	
+	if (!is.data.frame(x)) {
+		
+		x <- as.data.frame(x)
+		names(x) <- station
+		
+	}
+	
+	
+	## END EC 20190410
 	amount <- x
 	occurrence <- as.data.frame(x>=valmin)
 	
@@ -121,11 +163,13 @@ PrecipitationAmountModel <- function(x,valmin=1,station=names(x),sample="monthly
 	
 	if (sample=="monthly") {
 		names <- names(occurrence)
+		
 		occurrence <- adddate(occurrence,origin=origin)
 		month <- factor(occurrence$month)
-		str(month)
-		occurence <- occurrence[,names]
-		occurence$month <- month
+		
+		occurrence <- as.data.frame(as.matrix(occurrence[,names]))
+		names(occurrence) <- names
+		occurrence$month <- month
 		
 	}
 	
@@ -135,13 +179,19 @@ PrecipitationAmountModel <- function(x,valmin=1,station=names(x),sample="monthly
 	
 	for ( it in station) {
 				
-				df <- occurence 
-				df <- df[,names(df)!=it]
+				df <- occurrence 
+				ndf <- names(df)[which(names(df)!=it)]
+				
+				df <- as.data.frame(df[,ndf])
+				names(df) <- ndf
+				
+				
+				
 				df$gamount <- gauss[,it]
 				
 				
 				names <- c("gamount",names(df)[names(df)!="gamount"])
-				str(names)
+				
 				df <- df[,names]
 				df <- df[!is.na(df$gamount),]
 				
@@ -166,27 +216,6 @@ PrecipitationAmountModel <- function(x,valmin=1,station=names(x),sample="monthly
 
 	
 }
-
-
-#NULL
-#
-##'
-##' @param model 
-##' 
-##' 
-##' @export 
-##' 
-##' 
-#
-#
-#filling.precipitaation.amount <- function(model=NULL,occ,origin_occ,...) {
-#	
-#	
-#	occ <- 
-#	
-#	
-#	
-#}
 
 
 

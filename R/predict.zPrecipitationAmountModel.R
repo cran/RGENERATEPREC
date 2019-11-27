@@ -1,5 +1,5 @@
 NULL
-
+#'
 #' 
 #' @param origin_newdata character string containing the date corresponding the first row of \code{newdata} 
 #' @param precipitation.value.random.generation logical value. 
@@ -8,10 +8,11 @@ NULL
 #' 
 #' @export 
 #' @method predict PrecipitationAmountModel
-#### @S3method predict PrecipitationAmountModel
 #' @aliases predict predict.PrecipitationAmountModel
 #' @rdname predict
 #'
+#' 
+#' 
 predict.PrecipitationAmountModel <- function(object,newdata=NULL,origin_newdata=NA,precipitation.value.random.generation=FALSE,...) {
 	
 	if (is.null(origin_newdata)) origin_newdata <- NA
@@ -21,9 +22,24 @@ predict.PrecipitationAmountModel <- function(object,newdata=NULL,origin_newdata=
 	###str(object$x)
 	###str(object$valmin)
 	
-	if (is.null(newdata)) newdata <- as.data.frame(object$x[,object$station]>=object$valmin)
+	if (is.null(newdata)) {
+		newdata <- as.data.frame(as.matrix(object$x[,object$station]>=object$valmin))
+	} else {
+		
+		newdata <- as.data.frame(newdata)
+	}
+		
+		###
+	if (length(object$station)==1) {
+		
+		names(newdata) <- object$station
+		###
+	} else {
+		
+		newdata <- newdata[,object$station]
+	}
 	
-	
+
 	sample <- object$sample
 	
 	if (is.null(sample)) sample <- NA
@@ -31,28 +47,41 @@ predict.PrecipitationAmountModel <- function(object,newdata=NULL,origin_newdata=
 	if (sample=="monthly") {
 		
 		names <- names(newdata)
+		
 		newdata <- adddate(newdata,origin=origin_newdata)
 		month <- factor(newdata$month)
-		newdata <- newdata[,names]
-		newdata$month <- month
+		newdata <- as.data.frame(as.matrix(newdata[,names]))
 		
+		
+		names(newdata) <- names
+		
+		newdata$month <- month
 	}
 	
 	
 	###newdata <- as.list(newdata)
+	#str(newdata) ## ADDED EC20190410
 	
 	out <- lapply(X=object[object$station],FUN=function(x,nd=NULL,...) {
 				
 				id <- attr(x,"station")
 				
 				if (!is.null(nd)) {
-					
+				###	print(nrow(nd))
 					out <- array(NA,nrow(nd))
+				
 					rows <- which(nd[,id]==TRUE)
 					
 					nd <- nd[rows,]
+					nnd <- attr(x$terms,"term.labels")
+					nd <- data.frame(nd[,nnd])
+					names(nd) <- nnd
 					
-					nd <- nd[,attr(x$terms,"term.labels")]
+				    ####
+					
+					
+					####
+					
 					
 					out[rows] <- predict(x,newdata=nd,...)
 					
@@ -77,12 +106,12 @@ predict.PrecipitationAmountModel <- function(object,newdata=NULL,origin_newdata=
 	
 	
 	
-	####precipitation.value.random.generation <- FALSE 
 	if (precipitation.value.random.generation==TRUE)  {
 		
 		
 		resid <- lapply(X=object[object$station],FUN=function(x) {sd(residuals(x),na.rm=TRUE)})
 		names(resid) <- object$station
+		
 		out_generated <- lapply(X=resid,FUN=function(x,n) {rnorm(n,mean=0,sd=x)},n=length(out[[1]]))
 		
 		out <- as.data.frame(out)
@@ -104,7 +133,7 @@ predict.PrecipitationAmountModel <- function(object,newdata=NULL,origin_newdata=
 		out <- as.data.frame(out_m)
 		
 		
-		####out <- normalizeGaussian_severalstations(x=newgauss,data=obs,mean=0,sd=1,inverse=TRUE,sample=sample,origin_x=origin,origin_data=origin,...)
+		
 		
 	} else{
 		
