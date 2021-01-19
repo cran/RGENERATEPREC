@@ -773,11 +773,12 @@ An example of the usage of the precipitation stochastic generation contained in 
 ## References 
 
 ```{r generateBibliography,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,print=FALSE,results="hide"}
-require("knitcitations")
-cleanbib()
-options("citation_format" = "pandoc")
-read.bibtex(file = "bibliography.bib")
 
+library(RefManageR)
+
+options("citation_format" = "pandoc")
+
+RefManageR::ReadBib(file = "bibliography.bib")
 
 ```
 

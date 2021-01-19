@@ -1,15 +1,15 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----eval=TRUE,echo=TRUE,results='hide',warning=FALSE,message=FALSE------
+## ----eval=TRUE,echo=TRUE,results='hide',warning=FALSE,message=FALSE-----------
 
 library(RGENERATEPREC)
 library(lubridate)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 data(trentino)
 
@@ -29,14 +29,14 @@ leaf %>% setView(lng=mean(STATION_LATLON[,1]),lat=mean(STATION_LATLON[,2]),zoom=
 
 
 
-## ----eval=TRUE,results='hide',message=FALSE------------------------------
+## ----eval=TRUE,results='hide',message=FALSE-----------------------------------
 
 str(TEMPERATURE_MAX)
 str(TEMPERATURE_MIN)
 str(PRECIPITATION)
   
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 year_min <- 1961
 year_max <- 1990
 
@@ -44,12 +44,12 @@ origin <- paste(year_min,1,1,sep="-")
 period <- PRECIPITATION$year>=year_min & PRECIPITATION$year<=year_max
 period_temp <- TEMPERATURE_MAX$year>=year_min & TEMPERATURE_MAX$year<=year_max
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 prec_mes <- PRECIPITATION[period,]
 Tx_mes <- TEMPERATURE_MAX[period_temp,]
 Tn_mes <- TEMPERATURE_MIN[period_temp,]
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 accepted <- array(TRUE,length(names(prec_mes)))
 names(accepted) <- names(prec_mes)
 for (it in names(prec_mes)) {
@@ -62,96 +62,96 @@ for (it in names(prec_mes)) {
 
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 names(accepted)
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 prec_mes <- prec_mes[,accepted]
 head(prec_mes)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 Tx_mes <- Tx_mes[,accepted]
 head(Tx_mes)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 Tn_mes <- Tn_mes[,accepted]
 head(Tn_mes)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 valmin <- 1.0
 prec_occurence_mes <- prec_mes
 station <- names(prec_mes)[!(names(prec_mes) %in% c("day","month","year"))]
 prec_occurence_mes[,station] <- prec_mes[,station]>=valmin
 head(prec_occurence_mes)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 it1 <- "T0083" #station[2]
 it1
 
-## ----eva=TRUE------------------------------------------------------------
+## ----eva=TRUE-----------------------------------------------------------------
 exogen <- Tx_mes[,it1]-Tn_mes[,it1]
 months <- factor(prec_mes$month)
 model1 <- PrecipitationOccurrenceModel(x=prec_mes[,it1],exogen=exogen,monthly.factor=months)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model1)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(unclass(model1))
 names(model1)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 str(model1$predictor)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 summary(model1$glm)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 model1$p
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 model1$valmin
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 probs <- predict(model1$glm,type="response")
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 row_test <- 2000:2007
 newdata <- model1$predictor[row_test,]
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 head(newdata)
 newdata$probs2 <- predict(model1,newdata=newdata)
 
 head(newdata)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 exogen <- exogen
 months <- factor(prec_mes$month)
 set.seed(1235)
 prec_gen1_occ <- generate(model1,exogen=exogen,monthly.factor=months,n=length(months))
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 model1_amount <- PrecipitationAmountModel(prec_mes,station=it1,origin=origin)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model1_amount)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 names(model1_amount)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 summary(model1_amount[[it1]])
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 model1_amount$station
 model1_amount$sample
@@ -159,17 +159,17 @@ model1_amount$origin
 model1_amount$valmin
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 str(model1_amount$x)
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 prec_gen1 <- generate(model1_amount,newdata=prec_gen1_occ)
 str(prec_gen1)
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 
 library(ggplot2)
 library(lubridate)
@@ -197,7 +197,7 @@ g <- ggplot(data=qqdf)+geom_point(aes(x=obs,y=gen))+theme_bw()+geom_abline()+fac
 show(g)
 
 
-## ----eval=TRUE,echo=TRUE-------------------------------------------------
+## ----eval=TRUE,echo=TRUE------------------------------------------------------
 dw <- list()
 dw$obs <- dw.spell(prec_mes[,it1],origin=origin)[[1]]
 dw$obs$variable <- "obs"
@@ -217,7 +217,7 @@ qqdw <- cbind(qqdw,qqdw_add)
 
 
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 qqdry <- qqdw[qqdw$state=="dry",]
 
 ## ggplot plot
@@ -225,7 +225,7 @@ ggdry <- ggplot(data=qqdry)+geom_point(aes(x=obs,y=gen))+theme_bw()+geom_abline(
 show(ggdry)
 
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 qqwet <- qqdw[qqdw$state=="wet",]
 
 ## ggplot plot
@@ -233,7 +233,7 @@ ggwet <- ggplot(data=qqwet)+geom_point(aes(x=obs,y=gen))+theme_bw()+geom_abline(
 show(ggwet)
 
 
-## ----eval=TRUE,message=FALSE---------------------------------------------
+## ----eval=TRUE,message=FALSE--------------------------------------------------
 they <- c("T0083","T0090") ##station
 exogen <- Tx_mes[,they]-Tn_mes[,they]
 months <- factor(prec_mes$month)
@@ -242,47 +242,47 @@ model <- PrecipitationOccurrenceMultiSiteModel(x=prec_mes[,they],exogen=exogen,o
 
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 names(model)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model[[1]])
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model$ccgamma)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model$K)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model$type)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model$station)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model$p)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 prec_gen_occ <- generate(model,exogen=exogen,monthly.factor=months,n=length(months))
 str(prec_gen_occ)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 model_amount <- PrecipitationAmountModel(prec_mes,station=they,origin=origin)
 names(model_amount)
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 class(model_amount)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 names(model_amount)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 for (its in model_amount$station) summary(model_amount[[its]])
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 model_amount$station
 model_amount$sample
@@ -290,13 +290,13 @@ model_amount$origin
 model_amount$valmin
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 prec_gen <- generate(model_amount,newdata=prec_gen_occ)
 
 names(prec_gen)
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 
 library(ggplot2)
 library(lubridate)
@@ -333,7 +333,7 @@ show(ggdry)
 show(ggdf)
 
 
-## ----eval=TRUE,echo=TRUE-------------------------------------------------
+## ----eval=TRUE,echo=TRUE------------------------------------------------------
 dw <- list()
 dw$obs <- dw.spell(prec_mes[,they],origin=origin)
 nn <- names(dw$obs[[1]])
@@ -359,7 +359,7 @@ qqdw <- cbind(qqdw,qqdw_add)
 
 
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 qqdry <- qqdw[qqdw$state=="dry",]
 
 ## ggplot plot
@@ -367,7 +367,7 @@ ggdry <- ggplot(data=qqdry)+geom_point(aes(x=obs,y=gen))+theme_bw()+geom_abline(
 show(ggdry)
 
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 qqwet <- qqdw[qqdw$state=="wet",]
 
 ## ggplot plot
@@ -375,7 +375,7 @@ ggwet <- ggplot(data=qqwet)+geom_point(aes(x=obs,y=gen))+theme_bw()+geom_abline(
 show(ggwet)
 
 
-## ----eval=TRUE,warning=FALSE,output=FALSE--------------------------------
+## ----eval=TRUE,warning=FALSE,output=FALSE-------------------------------------
       months <- unique(prec_mes$month)
       ks_test <- list()
       for (m in months) {
@@ -385,23 +385,23 @@ show(ggwet)
       ks_test
 
 
-## ----eval=TRUE,echo=TRUE,message=FALSE,fig.width=12----------------------
+## ----eval=TRUE,echo=TRUE,message=FALSE,fig.width=12---------------------------
 str(prec_mes[,they])
 str(prec_gen[,they])
 cc_mes <- CCGamma(prec_mes[,they],sample = "monthly",origin = origin)
 cc_gen <- CCGamma(prec_gen[,they],sample = "monthly",origin = origin)
 
-## ----eval=TRUE,echo=TRUE,results="hide",fig.width=12---------------------
+## ----eval=TRUE,echo=TRUE,results="hide",fig.width=12--------------------------
 str(cc_mes)
 str(cc_gen)
 
-## ----eval=TRUE,echo=FALSE,fig.width=12-----------------------------------
+## ----eval=TRUE,echo=FALSE,fig.width=12----------------------------------------
 cc_mes %>% lapply(function(x){x$nooccurrence_correlation})
 
-## ----eval=TRUE,echo=FALSE,fig.width=12-----------------------------------
+## ----eval=TRUE,echo=FALSE,fig.width=12----------------------------------------
 cc_gen %>% lapply(function(x){x$nooccurrence_correlation})
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 df <- data.frame(obs=prec_mes[,it1],gen=prec_gen1[,it1])
 df$date <- as.Date(origin)+days(1:nrow(df))-1
 df$month <- factor(month(df$date))
@@ -413,7 +413,7 @@ df$season[df$month %in% c(9,10,11)] <-  "4.SON"
 
 dfp <- df[df$obs>valmin,] 
 
-## ----eval=TRUE,fig.width=7-----------------------------------------------
+## ----eval=TRUE,fig.width=7----------------------------------------------------
 
 color_month <-  rep(c("#E6352F","#34A74B","#3D79F3" ),4)[c(12,1:11)]
 
@@ -423,7 +423,7 @@ gdens <- gdens+scale_color_manual(values = color_month)
 show(gdens)
 
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 
 library(lmom)
 
@@ -436,7 +436,7 @@ kstest <-params %>% mapply(FUN=ks.test,x=prec_val_m,y="cdfln3",SIMPLIFY=FALSE)
 kstest
 
 
-## ----eval=TRUE,fig.width=7-----------------------------------------------
+## ----eval=TRUE,fig.width=7----------------------------------------------------
 
 modify_lmoments <- function(x){x[2] <- x[2]*1.3; return(x)}
 paraml <- function(x,valmin) {
@@ -473,7 +473,7 @@ gg <- ggplot()+geom_line(data=df,mapping=aes(x=obs,y=obs_mod,col=month))+facet_g
 gg <- gg+scale_color_manual(values = color_month)
 show(gg)
 
-## ----eval=TRUE-----------------------------------------------------------
+## ----eval=TRUE----------------------------------------------------------------
 prec_mod <- as.data.frame(df$obs_mod) 
 names(prec_mod) <- it1
 model1_amount_mod <- PrecipitationAmountModel(prec_mod,station=it1,origin=origin)
@@ -481,7 +481,7 @@ prec_gen1_mod <- generate(model1_amount_mod,newdata=prec_gen1_occ)
 str(prec_gen1_mod)
 
 
-## ----eval=TRUE,fig.width=12----------------------------------------------
+## ----eval=TRUE,fig.width=12---------------------------------------------------
 df$gen_mod <- prec_gen1_mod[,it1]
 
 qqplot__ <- function(df,i=1) {
@@ -519,10 +519,11 @@ show(g)
 
 
 ## ----generateBibliography,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,print=FALSE,results="hide"----
-require("knitcitations")
-cleanbib()
-options("citation_format" = "pandoc")
-read.bibtex(file = "bibliography.bib")
 
+library(RefManageR)
+
+options("citation_format" = "pandoc")
+
+RefManageR::ReadBib(file = "bibliography.bib")
 
 

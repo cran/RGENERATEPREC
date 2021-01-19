@@ -4,9 +4,17 @@
 \alias{PrecipitationOccurrenceMultiSiteModel}
 \title{Precipitation Occurrence Multi-Site Model}
 \usage{
-PrecipitationOccurrenceMultiSiteModel(x, exogen = NULL,
-  station = names(x), origin = origin, valmin = 0.5,
-  multisite_type = "wilks", tolerance_wilks = 0.001, p = 2, ...)
+PrecipitationOccurrenceMultiSiteModel(
+  x,
+  exogen = NULL,
+  station = names(x),
+  origin = origin,
+  valmin = 0.5,
+  multisite_type = "wilks",
+  tolerance_wilks = 0.001,
+  p = 2,
+  ...
+)
 }
 \arguments{
 \item{x}{data frame (each column is a site) of variable utilized for the auto-regression of its occurrence, e.g. daily precipitaton}
@@ -80,7 +88,7 @@ station <- names(prec_mes)[!(names(prec_mes) \%in\% c("day","month","year"))]
 station <- station[1:2] # to save example elapsed time!!
 exogen <- Tx_mes-Tn_mes
 months <- factor(prec_mes$month)
-\dontrun{
+\donttest{
 #' ### Not Run!! 
 # The following lines are commented to save example elapsed time!!
 model_multisite <- PrecipitationOccurrenceMultiSiteModel(x=prec_mes,exogen=exogen,

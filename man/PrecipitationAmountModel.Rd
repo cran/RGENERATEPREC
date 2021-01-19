@@ -4,8 +4,14 @@
 \alias{PrecipitationAmountModel}
 \title{Creates a Precipitation Amount Model}
 \usage{
-PrecipitationAmountModel(x, valmin = 1, station = names(x),
-  sample = "monthly", origin = "1961-1-1", ...)
+PrecipitationAmountModel(
+  x,
+  valmin = 1,
+  station = names(x),
+  sample = "monthly",
+  origin = "1961-1-1",
+  ...
+)
 }
 \arguments{
 \item{x}{observed precipitation amount time series (data frame)}
@@ -29,7 +35,7 @@ Creates a Precipitation Amount Model
 }
 \examples{
 
-\dontrun{
+\donttest{
 set.seed(1245)
 
 data(trentino)

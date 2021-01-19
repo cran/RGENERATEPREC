@@ -4,11 +4,22 @@
 \alias{CCGamma}
 \title{This function extends \code{\link[RMAWGEN]{continuity_ratio}} and adds the corresponding gaussian correlation matrix for no-precipitation occurrence.}
 \usage{
-CCGamma(data, lag = 0, p0_v1 = NULL, p = NA, valmin = 0.5,
-  nearPD = (lag >= 0), interval = c(-1, 1),
-  tolerance = .Machine$double.eps, only.matrix = FALSE,
-  return.value = NULL, null.gcorrelation = 1e-05, sample = NULL,
-  origin = "1961-1-1", ...)
+CCGamma(
+  data,
+  lag = 0,
+  p0_v1 = NULL,
+  p = NA,
+  valmin = 0.5,
+  nearPD = (lag >= 0),
+  interval = c(-1, 1),
+  tolerance = .Machine$double.eps,
+  only.matrix = FALSE,
+  return.value = NULL,
+  null.gcorrelation = 1e-05,
+  sample = NULL,
+  origin = "1961-1-1",
+  ...
+)
 }
 \arguments{
 \item{data}{data frame or 'zoo'  R object containing daily precipitation time series for several gauges (one gauge time series per column). See \code{\link[RMAWGEN]{continuity_ratio}}.}
@@ -91,7 +102,7 @@ prec_mes <- prec_mes[,accepted]
 prec_mes <- prec_mes[,1:2]
 
 CCGamma <- CCGamma(data=prec_mes,lag=0,tolerance=0.001,only.matrix=FALSE)
-\dontrun{
+\donttest{
 ## Not Run in the examples, uncomment to run the following line
  CCGamma <- CCGamma(data=prec_mes,lag=0:2,tolerance=0.001,only.matrix=FALSE)
 
@@ -103,10 +114,10 @@ CCGamma <- CCGamma(data=prec_mes,lag=0,tolerance=0.001,only.matrix=FALSE)
 }
 \references{
 D.S. Wilks (1998), Multisite Generalization of a Daily Stochastic Precipitation Generation Model, Journal of Hydrology, Volume 210, Issues 1-4, September 1998, Pages 178-191,
-\url{http://www.sciencedirect.com/science/article/pii/S0022169498001863}
+\url{https://www.sciencedirect.com/science/article/pii/S0022169498001863}
 
 Muamaraldin Mhanna and Willy Bauwens (2011) A Stochastic Space-Time Model for the Generation of Daily Rainfall in the Gaza Strip, International Journal of Climatology, Volume 32, Issue 7, pages 1098-1112,
-\url{http://dx.doi.org/10.1002/joc.2305}
+\doi{10.1002/joc.2305}, \url{https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/joc.2305}
 }
 \seealso{
 \code{\link[RMAWGEN]{continuity_ratio}},\code{\link{omega_inv}},\code{\link{omega}},\code{\link{CCGammaToBlockmatrix}}

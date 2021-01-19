@@ -8,14 +8,24 @@
 \alias{predict.PrecipitationAmountModel}
 \title{Prediction of a  \code{PrecipitationOccurrenceModel} model object}
 \usage{
-\method{predict}{PrecipitationOccurrenceModel}(object, newdata = NULL,
-  type = "response", previous = NULL, endogenous = NULL, ...)
+\method{predict}{PrecipitationOccurrenceModel}(
+  object,
+  newdata = NULL,
+  type = "response",
+  previous = NULL,
+  endogenous = NULL,
+  ...
+)
 
 \method{predict}{PrecipitationOccurrenceMultiSiteModel}(object, ...)
 
-\method{predict}{PrecipitationAmountModel}(object, newdata = NULL,
-  origin_newdata = NA, precipitation.value.random.generation = FALSE,
-  ...)
+\method{predict}{PrecipitationAmountModel}(
+  object,
+  newdata = NULL,
+  origin_newdata = NA,
+  precipitation.value.random.generation = FALSE,
+  ...
+)
 }
 \arguments{
 \item{object}{model returned by \code{\link{PrecipitationOccurrenceModel}}}
@@ -36,6 +46,9 @@ It is used if the endogenous variables are more than one, otherwise is set \code
 \item{precipitation.value.random.generation}{logical value. 
 If it is \code{FALSE} (Default) the method \code{predict.PrecipitationAmountModel} returns conditioned random values, 
 otherwise these values are converted to precipitation values  through their observed non-parametric distributions.}
+}
+\value{
+A vector or a data frame reporting predicted time series for each station.
 }
 \description{
 It is a wrapper of \code{\link{predict.glm}} method for the a \code{PrecipitationOccurrenceModel} model object S3 class.
@@ -111,7 +124,7 @@ prec_mes <- prec_mes[,station]
 exogen <- Tx_mes-Tn_mes
 months <- factor(prec_mes$month)
 
-\dontrun{
+\donttest{
 ### Not Run 
 ### Please uncomment the following lines to run them 
 
