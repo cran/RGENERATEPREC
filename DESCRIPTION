@@ -8,16 +8,16 @@ Description: The method 'generate()' is extended for spatial multi-site
     stochastic generation of daily precipitation. It generates precipitation
     occurrence in several sites using logit regression (Generalized Linear
     Models) and the approach by D.S. Wilks (1998) <doi:10.1016/S0022-1694(98)00186-3> . 
-Version: 1.2.8
+Version: 1.2.9
 Repository: CRAN
-Date: 2021-01-19
-Depends: R (>= 3.0), copula, RGENERATE, blockmatrix, Matrix, stringr
+Date: 2022-01-11
+Depends: R (>= 3.5.0), copula, RGENERATE, blockmatrix, Matrix, stringr
 Imports: RMAWGEN
 Suggests:
-        knitr,rmarkdown,lubridate,leaflet,lmom,ggplot2,reshape2,RefManageR
+        knitr,rmarkdown,lubridate,mapview,sf,lmom,ggplot2,reshape2,RefManageR
 VignetteBuilder: knitr
 URL: https://github.com/ecor/RGENERATEPREC
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 NeedsCompilation: no
-Packaged: 2021-01-19 14:04:34 UTC; ecor
-Date/Publication: 2021-01-19 15:40:19 UTC
+Packaged: 2022-01-18 09:45:10 UTC; ecor
+Date/Publication: 2022-01-20 16:12:49 UTC

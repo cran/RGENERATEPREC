@@ -3,6 +3,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+knitr::opts_chunk$set(echo = TRUE)
+
 
 ## ----eval=TRUE,echo=TRUE,results='hide',warning=FALSE,message=FALSE-----------
 
@@ -14,19 +16,16 @@ library(lubridate)
 data(trentino)
 
 
-## ----echo=FALSE,return=TRUE,warning=FALSE,results='markup',message=FALSE,fig.width=7----
-URL = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
-ATTRIBUTION = 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-library(leaflet)
+## ----echo=TRUE,return=TRUE,warning=FALSE,results='markup',message=FALSE,fig.width=7----
 
-leaf <- leaflet() %>% addTiles(urlTemplate=URL,attribution=ATTRIBUTION) 
-# leaf %>% addRasterImage(basin,opacity=opacity,col=color) %>% addLegend(position="bottomright",pal=color,values=basin[],opacity=opacity,title="Elevation [m]") %>% 
-# addCircleMarkers(lng=meteoloc$x,lat=meteoloc$y,label="Meteo",opacity=opacity,radius=2,color="red") %>% 
-#   addScaleBar()
+library(sf)
+library(mapview)
 
-leaf <- leaf  %>% addMarkers(STATION_LATLON[,1],STATION_LATLON[,2],label=STATION_NAMES)
-leaf %>% setView(lng=mean(STATION_LATLON[,1]),lat=mean(STATION_LATLON[,2]),zoom=10)
-
+trentino_stations <- data.frame(x=STATION_LATLON[,1],y=STATION_LATLON[,2],name=STATION_NAMES)
+######
+trentino_stations$geometry <- trentino_stations[,c("x","y")] %>% t() %>% as.data.frame() %>% as.list() %>% lapply(st_point) %>% st_sfc()
+trentino_stations <- st_sf(trentino_stations,geometry=trentino_stations$geometry,crs=4326)
+mapview(trentino_stations,col.regions="blue")
 
 
 ## ----eval=TRUE,results='hide',message=FALSE-----------------------------------
@@ -516,14 +515,5 @@ qqdf <- split(df[,nnn],f=df$season) %>% lapply(FUN=qqplot__) %>% melt(id=1:3)
 names(qqdf)[names(qqdf)=="L1"] <- "season"
 g <- ggplot(data=qqdf)+geom_point(aes(x=obs_mod,y=value,group=variable,color=variable))+theme_bw()+geom_abline()+facet_grid(. ~ season)+xlab("modified secenario through observated values [mm]")+ylab("generated / observated [mm]")
 show(g)
-
-
-## ----generateBibliography,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,print=FALSE,results="hide"----
-
-library(RefManageR)
-
-options("citation_format" = "pandoc")
-
-RefManageR::ReadBib(file = "bibliography.bib")
 
 

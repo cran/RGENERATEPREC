@@ -7,6 +7,7 @@ vignette: >
   %\VignetteIndexEntry{Stochastic Generation of Daily Precipitation Time Series}
   %\VignetteEngine{knitr::rmarkdown}
   \VignetteEncoding{UTF-8}
+  
 bibliography: bibliography.bib
 ---
 
@@ -15,11 +16,13 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+knitr::opts_chunk$set(echo = TRUE)
+
 ```
 ## Overview
 
 
-Stochastic generators of weather variables, called "Weather Generators" (WGs) have been widely developed in the recent decades for hydrological and agricultural applications  (e.g.  @Richardson1981 @Racsko1991, @Semenov1997, @Parlange2000,@Liu2009,@Chen2012,@Chen2014,@Cordano2016, @Verdin2018 ). These instruments have been used in several applications related to plant hooenology and agriculture (e.g. @Delerce2016, @Benmoussa2018, @Alikadic2019) and hydroclimatic case studies (e.g. @Fu2018, @Ahn2018). Former applications of WGs are the reproductions of daily weather time series from downscaled monthly climate predictions (@Mearns2001,@Wilks1999,@Qian2002,@Semenov2010). If high-resolution application models are to be used with downscaled series, a meteorological consistence of generated series is required, suggesting the use of a multi-site weather generator. Algorithms to represent historical spatial dependences of weather variables have been developed by @Wilks1998,@Khalili2009,@Serinaldi2009 and @Bardossy2009. @Wilks1998 simulated rainfall occurrences through a generation of combinations of Gaussian random variables and established a relationship for each pair of rain gauges between Gaussian variables correlation and binary precipitation occurrence values. In this way, weather generators can reproduce at least partially spatial correlations. This approach is widely cited in literature (e.g. @Mehrotra2006,@Brissette2007,@Serinaldi2009,@Thompson2007,@Mhanna2011).  
+Stochastic generators of weather variables, called "Weather Generators" (WGs) have been widely developed in the recent decades for hydrological and agricultural applications  (e.g.  @Richardson1981 @Racsko1991, @Semenov1997, @Parlange2000,@Liu2009,@Chen2012,@Chen2014,@Cordano2016, @Verdin2018 ). These instruments have been used in several applications related to plant phenology and agriculture (e.g. @Delerce2016, @Benmoussa2018, @Alikadic2019) and hydroclimatic case studies (e.g. @Fu2018, @Ahn2018). Former applications of WGs are the reproductions of daily weather time series from downscaled monthly climate predictions (@Mearns2001,@Wilks1999,@Qian2002,@Semenov2010). If high-resolution application models are to be used with downscaled series, a meteorological consistence of generated series is required, suggesting the use of a multi-site weather generator. Algorithms to represent historical spatial dependences of weather variables have been developed by @Wilks1998,@Khalili2009,@Serinaldi2009 and @Bardossy2009. @Wilks1998 simulated rainfall occurrences through a generation of combinations of Gaussian random variables and established a relationship for each pair of rain gauges between Gaussian variables correlation and binary precipitation occurrence values. In this way, weather generators can reproduce at least partially spatial correlations. This approach is widely cited in literature (e.g. @Mehrotra2006,@Brissette2007,@Serinaldi2009,@Thompson2007,@Mhanna2011).  
 In principle, **RMAWGEN** (RMultisite Auto-regressive Weather Generator) was developed to cope with the demand for high-resolution climatic scenarios but also  to create a flexible tool for engineers, climatologists, and environmental sciences modellers.
 Recently, statistical methods useful for weather generation, originally developed in environmetrics and econometrics, were made available in the R platform. **RMAWGEN**  uses  R's existing tools for vector auto-regressive models (@vars), employed for generation of weather variables (@Adenomon2013,@Luguterah2013,@Shahin2014),  and to let the end users work with other R spatio-temporal tools for data analysis and visualization (@Bivand2008,@Loecher2012,@Kahle2013,@leaflet). **RMAWGEN** (@RMAWGEN) carries out generations of weather series through Vector Auto-regressive Models; the latter work generally well for time-continuous variables, but present some critical issues for intermittent weather variables like precipitation. Meanwhile, **RGENERATE** (@RGENERATE) has been created to create several the stochasic generation algorithms by using a unique S3/S4 method called starting from the ones  in **RMAWGEN** to other models, where stochastic weather generations follow different algorithms.   **RGENERATEPREC** contains an extension the *generate* methods in order to make a stochstic generation of precipitations, using logistic regression instead of linear regression used for the Gaussianized variables in **RMAWGEN**. 
 
@@ -46,19 +49,16 @@ data(trentino)
 ```
 The stations are spread in a territory covering Trentino and its neighbourhood (@leaflet).
 
-```{r,echo=FALSE,return=TRUE,warning=FALSE,results='markup',message=FALSE,fig.width=7}
-URL = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
-ATTRIBUTION = 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-library(leaflet)
+```{r,echo=TRUE,return=TRUE,warning=FALSE,results='markup',message=FALSE,fig.width=7}
 
-leaf <- leaflet() %>% addTiles(urlTemplate=URL,attribution=ATTRIBUTION) 
-# leaf %>% addRasterImage(basin,opacity=opacity,col=color) %>% addLegend(position="bottomright",pal=color,values=basin[],opacity=opacity,title="Elevation [m]") %>% 
-# addCircleMarkers(lng=meteoloc$x,lat=meteoloc$y,label="Meteo",opacity=opacity,radius=2,color="red") %>% 
-#   addScaleBar()
+library(sf)
+library(mapview)
 
-leaf <- leaf  %>% addMarkers(STATION_LATLON[,1],STATION_LATLON[,2],label=STATION_NAMES)
-leaf %>% setView(lng=mean(STATION_LATLON[,1]),lat=mean(STATION_LATLON[,2]),zoom=10)
-
+trentino_stations <- data.frame(x=STATION_LATLON[,1],y=STATION_LATLON[,2],name=STATION_NAMES)
+######
+trentino_stations$geometry <- trentino_stations[,c("x","y")] %>% t() %>% as.data.frame() %>% as.list() %>% lapply(st_point) %>% st_sfc()
+trentino_stations <- st_sf(trentino_stations,geometry=trentino_stations$geometry,crs=4326)
+mapview(trentino_stations,col.regions="blue")
 
 ```
 
@@ -302,7 +302,7 @@ str(prec_gen1)
 
 ### Comparison  
 
-The stochastic coherence between oberseved and generated time series is verified through the Quantile-Quantile plot:
+The stochastic coherence between observed and generated time series is verified through the Quantile-Quantile plot:
 
 ```{r eval=TRUE,fig.width=12}
 
@@ -333,7 +333,7 @@ show(g)
 
 ```
 
-A comaparison of the dry/wet spells, considered as periods of consecutive dry/rainy days, between observed and generated time series are plotted below respectively. The following lines of codes makes use of *dw.spell* function that calculates the length expressed in days for the dry or wet spells:
+A comparison of the dry/wet spells, considered as periods of consecutive dry/rainy days, between observed and generated time series are plotted below respectively. The following lines of codes makes use of *dw.spell* function that calculates the length expressed in days for the dry or wet spells:
 
 
 ```{r eval=TRUE,echo=TRUE}
@@ -767,18 +767,11 @@ show(g)
 
 ## Conclusions
 
-An example of the usage of the precipitation stochastic generation contained in **RGENERATEPREC** package has been shown. Visualization through quantile-quantile plots and statistical testing (e.g. Kolgomorov-Smirnov testing), the similarity of  the stastistical properties (e.g. probability distrubtions of precipitation occurrence, precipitation account, dry spell, wet spell per each month of the year) between observed and generated time series hes been checked. The weather generator can work with one or more time series generating scenarios for several sites and mantainig their also spatial cross-correlation. This vignette has shown an example applied to some stations of *trentino* dataset. An example on how to use the weather generator with data having different probabilistic distribution (e.g. more climate variability or adaptations to future projections) has been finally illustrated.
+An example of the usage of the precipitation stochastic generation contained in **RGENERATEPREC** package has been shown. Visualization through quantile-quantile plots and statistical testing (e.g. Kolgomorov-Smirnov testing), the similarity of  the stastistical properties (e.g. probability distrubtions of precipitation occurrence, precipitation account, dry spell, wet spell per each month of the year) between observed and generated time series hes been checked. The weather generator can work with one or more time series generating scenarios for several sites and mantaining their also spatial cross-correlation. This vignette has shown an example applied to some stations of *trentino* dataset. An example on how to use the weather generator with data having different probabilistic distribution (e.g. more climate variability or adaptations to future projections) has been finally illustrated.
 
 
 ## References 
 
-```{r generateBibliography,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,print=FALSE,results="hide"}
+<div id="refs"></div>
 
-library(RefManageR)
-
-options("citation_format" = "pandoc")
-
-RefManageR::ReadBib(file = "bibliography.bib")
-
-```
 

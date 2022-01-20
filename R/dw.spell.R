@@ -12,7 +12,7 @@ NULL
 #' @param data data frame R object containing daily precipitation time series for several gauges (one gauge time series per column). 
 #' @param valmin threshold precipitation value [mm] for wet/dry day indicator.
 #' @param origin character string \code{"yyyy-mm-dd"} indicated the date of the first row of \code{"data"}. 
-#' @param extract string charecter referred to the state to be extracted, eg. \code{"dry"} or \code{"wet"}
+#' @param extract string character referred to the state to be extracted, eg. \code{"dry"} or \code{"wet"}
 #' @param month integer vectors containing the considered months. Default is \code{1:12} (all the year). 
 #' @param melting.df logical value. If it \code{TRUE} the output is melted into a data frame. Default is \code{FALSE}.
 #' @param from.start logical value. If is \code{TRUE} the spell is referenced to its first day, if it is \code{FALSE} (default) the spell is referenced to its last date.
